@@ -352,6 +352,10 @@ async function loadHistory() {
 
 function showHistoryItem(el) {
   var output = decodeURIComponent(el.getAttribute('data-output'));
+  try {
+    var parsed = JSON.parse(output);
+    output = JSON.stringify(parsed, null, 2);
+  } catch(e) {}
   var overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
   overlay.innerHTML = '<div style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px;max-width:680px;width:100%;max-height:80vh;overflow-y:auto;position:relative">' +
