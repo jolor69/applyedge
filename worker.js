@@ -2,11 +2,11 @@
 // Endpoints: /signup /login /verify-email /forgot-password /reset-password /me
 //            /fetch-jd  / (AI completions)
 
-const DAILY_LIMIT_FREE = 3;
+const MONTHLY_LIMIT_FREE = 3;
 const MONTHLY_LIMIT_SEEKER = 10;
 const FROM_EMAIL = 'no-reply@applydge.work';
 const APP_URL = 'https://applydge.work';
-const ADMIN_EMAIL = 'joe.lord.ai@gmail.com';
+const ADMIN_EMAILS = ['joe.lord.ai@gmail.com', 'neuralstocks.dev@gmail.com'];
 const PAYPAL_API = 'https://api-m.paypal.com';
 const PAYPAL_CLIENT_ID = 'AXaVg36-SXOe1Y1JxjskLkP-pd5bz6VJWNlDuE6Oif5san9-CyEID5RZMPHtHbybjlHFFPVqWeENMBV1';
 const PLAN_SEEKER = 'P-0B417572P35980515NIV2RSY';
@@ -139,13 +139,11 @@ async function getUserFromRequest(request, env) {
 function getPlanLimit(plan) {
   if (plan === 'campaigner') return Infinity;
   if (plan === 'seeker') return MONTHLY_LIMIT_SEEKER;
-  return DAILY_LIMIT_FREE;
+  return MONTHLY_LIMIT_FREE;
 }
 
 function isNewPeriod(user) {
-  const today = new Date().toISOString().slice(0, 10);
   const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
-  if (user.plan === 'free') return user.scans_reset_date !== today;
   return user.scans_reset_date < firstOfMonth;
 }
 
@@ -276,14 +274,14 @@ export default {
 
       return jsonRes({
         token: jwt,
-        user: { id: user.id, email: user.email, plan: user.plan, scans_used: user.scans_used, is_admin: user.email === ADMIN_EMAIL }
+        user: { id: user.id, email: user.email, plan: user.plan, scans_used: user.scans_used, is_admin: ADMIN_EMAILS.includes(user.email) }
       });
     }
 
     if (url.pathname === '/me' && request.method === 'GET') {
       const user = await getUserFromRequest(request, env);
       if (!user) return jsonRes({ error: 'Not authenticated' }, 401);
-      return jsonRes({ id: user.id, email: user.email, plan: user.plan, scans_used: user.scans_used, is_admin: user.email === ADMIN_EMAIL, credits_scans: user.credits_scans || 0, credits_covers: user.credits_covers || 0, credits_signals: user.credits_signals || 0, source: user.source || 'organic' });
+      return jsonRes({ id: user.id, email: user.email, plan: user.plan, scans_used: user.scans_used, is_admin: ADMIN_EMAILS.includes(user.email), credits_scans: user.credits_scans || 0, credits_covers: user.credits_covers || 0, credits_signals: user.credits_signals || 0, source: user.source || 'organic' });
     }
 
     if (url.pathname === '/forgot-password' && request.method === 'POST') {
@@ -371,7 +369,7 @@ export default {
     if (url.pathname === '/save/email' && request.method === 'POST') {
       const user = await getUserFromRequest(request, env);
       if (!user) return jsonRes({ error: 'Not authenticated' }, 401);
-      if (user.plan === 'free' && user.email !== ADMIN_EMAIL) {
+      if (user.plan === 'free' && !ADMIN_EMAILS.includes(user.email)) {
         return jsonRes({ error: 'Email to self is available on Seeker and Campaigner plans.' }, 403);
       }
       const { subject, body } = await request.json();
@@ -415,13 +413,23 @@ export default {
       } catch(e) { return jsonRes({ error: 'Could not capture payment: ' + e.message }, 500); }
     }
 
+    if (url.pathname === '/history' && request.method === 'GET') {
+      const user = await getUserFromRequest(request, env);
+      if (!user) return jsonRes({ error: 'Not authenticated' }, 401);
+      if (user.plan === 'free' && !ADMIN_EMAILS.includes(user.email)) return jsonRes({ error: 'History is available on Seeker and Campaigner plans.' }, 403);
+      const rows = await env.DB.prepare(
+        'SELECT id, tool_type, title, output, created_at FROM scan_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 50'
+      ).bind(user.id).all();
+      return jsonRes({ history: rows.results });
+    }
+
     if (url.pathname === '/signal-gate' && request.method === 'POST') {
       const adminToken = request.headers.get('X-Admin-Token') || '';
       const isAdmin = env.ADMIN_TOKEN && adminToken === env.ADMIN_TOKEN;
       if (isAdmin) return jsonRes({ blocked: false, reason: 'admin' });
 
       const user = await getUserFromRequest(request, env);
-      if (user && user.email === ADMIN_EMAIL) return jsonRes({ blocked: false, reason: 'admin-email' });
+      if (user && ADMIN_EMAILS.includes(user.email)) return jsonRes({ blocked: false, reason: 'admin-email' });
 
       if (user) {
         if (user.plan === 'campaigner') return jsonRes({ blocked: false });
@@ -515,7 +523,7 @@ export default {
       const delEmail = (body3.email || '').toLowerCase();
       const cancelSub = body3.cancel_subscription || false;
       if (!delEmail) return jsonRes({ error: 'Email required' }, 400);
-      if (delEmail === ADMIN_EMAIL) return jsonRes({ error: 'Cannot delete admin account' }, 403);
+      if (ADMIN_EMAILS.includes(delEmail)) return jsonRes({ error: 'Cannot delete admin account' }, 403);
       const delUser = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(delEmail).first();
       if (!delUser) return jsonRes({ error: 'User not found' }, 404);
       if (cancelSub && delUser.paypal_subscription_id) {
@@ -587,7 +595,7 @@ export default {
 
     const user = await getUserFromRequest(request, env);
 
-    const isAdminEmail = user && user.email === ADMIN_EMAIL;
+    const isAdminEmail = user && ADMIN_EMAILS.includes(user.email);
 
     const isSignalCall = request.headers.get('X-Signal-Call') === '1';
 
@@ -599,10 +607,10 @@ export default {
 
         if (limit !== Infinity) {
           if (isNewPeriod(user)) {
-            const today = new Date().toISOString().slice(0, 10);
+            const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
             await env.DB.prepare(
               'UPDATE users SET scans_used = 0, scans_reset_date = ? WHERE id = ?'
-            ).bind(today, user.id).run();
+            ).bind(firstOfMonth, user.id).run();
             user.scans_used = 0;
           }
 
@@ -612,7 +620,7 @@ export default {
               scansRemaining = null;
             } else {
               const planMsg = user.plan === 'free'
-                ? 'Free plan limit reached (3 scans). Upgrade to Seeker for 10 scans/month, or buy credits.'
+                ? 'Free plan limit reached (3 scans/month). Upgrade to Seeker for 10 scans/month, or buy credits.'
                 : 'Monthly scan limit reached. Upgrade to Campaigner for unlimited scans, or buy credits.';
               return jsonRes({ error: { message: planMsg, type: 'rate_limit' } }, 429);
             }
@@ -624,24 +632,13 @@ export default {
           scansRemaining = limit - (user.scans_used + 1);
         }
       } else {
-        const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-        const today = new Date().toISOString().slice(0, 10);
-        const kvKey = 'demo:' + ip + ':' + today;
-        const current = await env.LIMITS.get(kvKey);
-        const count = current ? parseInt(current) : 0;
-
-        if (count >= DAILY_LIMIT_FREE) {
-          return jsonRes({
-            error: {
-              message: 'Free demo limit reached (3 scans per day). Create a free account to continue.',
-              type: 'rate_limit',
-              code: 'demo_limit_exceeded'
-            }
-          }, 429);
-        }
-
-        await env.LIMITS.put(kvKey, String(count + 1), { expirationTtl: 90000 });
-        scansRemaining = DAILY_LIMIT_FREE - (count + 1);
+        return jsonRes({
+          error: {
+            message: 'Please create a free account to use ApplyEdge. Sign up takes 30 seconds.',
+            type: 'auth_required',
+            code: 'login_required'
+          }
+        }, 401);
       }
     }
     if (isSignalCall && !isAdmin) {
@@ -670,6 +667,17 @@ export default {
     });
 
     const data = await response.json();
+
+    // Save to history for Seeker+ users
+    if (data.choices && user && (user.plan === 'seeker' || user.plan === 'campaigner' || ADMIN_EMAILS.includes(user.email))) {
+      const toolType = request.headers.get('X-Tool-Type') || 'scan';
+      const output = data.choices[0].message.content || '';
+      const title = output.slice(0, 80).replace(/[\n\r]+/g, ' ').trim();
+      const hid = crypto.randomUUID();
+      await env.DB.prepare(
+        'INSERT INTO scan_history (id, user_id, tool_type, title, output, created_at) VALUES (?, ?, ?, ?, ?, datetime(\'now\'))'
+      ).bind(hid, user.id, toolType, title, output).run();
+    }
 
     if (data.choices && scansRemaining !== null && scansRemaining <= 1) {
       data._applyedge = {

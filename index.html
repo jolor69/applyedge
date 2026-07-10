@@ -323,7 +323,57 @@ footer{background:var(--ink);padding:4.5rem 2rem 2rem}
 .acarte-modal-close{position:absolute;top:1rem;right:1rem;background:var(--paper);border:none;color:var(--muted);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem}
 #acarte-paypal-container{min-height:50px;margin-top:1rem}
 </style>
-<script src="https://www.paypal.com/sdk/js?client-id=AXaVg36-SXOe1Y1JxjskLkP-pd5bz6VJWNlDuE6Oif5san9-CyEID5RZMPHtHbybjlHFFPVqWeENMBV1&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AXaVg36-SXOe1Y1JxjskLkP-pd5bz6VJWNlDuE6Oif5san9-CyEID5RZMPHtHbybjlHFFPVqWeENMBV1&vault=true&intent=subscription" data-sdk-integration-source="button-factory">
+async function loadHistory() {
+  var el = document.getElementById('history-list');
+  if (!el) return;
+  el.innerHTML = '<p style="color:#aaa;font-size:13px">Loading...</p>';
+  try {
+    var res = await fetch(OR_API + '/history', {
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    });
+    var d = await res.json();
+    if (!res.ok) { el.innerHTML = '<p style="color:#f66;font-size:13px">' + (d.error || 'Error loading history') + '</p>'; return; }
+    if (!d.history || d.history.length === 0) { el.innerHTML = '<p style="color:#aaa;font-size:13px">No history yet. Run a scan to get started.</p>'; return; }
+    var toolLabels = { ats: 'ATS Scan', curate: 'Resume Curate', cover: 'Cover Letter', signal: 'The Signal' };
+    el.innerHTML = d.history.map(function(h) {
+      return '<div style="border:1px solid #333;border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer" onclick="showHistoryItem(this)" data-output="' + encodeURIComponent(h.output) + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="font-size:12px;color:#0cf;font-weight:600">' + (toolLabels[h.tool_type] || h.tool_type) + '</span>' +
+        '<span style="font-size:11px;color:#777">' + h.created_at.slice(0,16).replace('T',' ') + '</span>' +
+        '</div>' +
+        '<p style="font-size:13px;color:#ccc;margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + h.title + '</p>' +
+        '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<p style="color:#f66;font-size:13px">Failed to load history.</p>'; }
+}
+
+function showHistoryItem(el) {
+  var output = decodeURIComponent(el.getAttribute('data-output'));
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.innerHTML = '<div style="background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:24px;max-width:680px;width:100%;max-height:80vh;overflow-y:auto;position:relative">' +
+    '<button onclick="this.closest(\'div\').parentNode.remove()" style="position:absolute;top:12px;right:12px;background:none;border:none;color:#aaa;font-size:18px;cursor:pointer">✕</button>' +
+    '<pre style="white-space:pre-wrap;font-size:13px;color:#ddd;margin:0;line-height:1.6">' + output.replace(/</g,'&lt;') + '</pre>' +
+    '</div>';
+  document.body.appendChild(overlay);
+}
+
+
+function openHistory() {
+  var drawer = document.getElementById('history-drawer');
+  var overlay = document.getElementById('history-overlay');
+  drawer.style.display = 'flex';
+  overlay.style.display = 'block';
+  loadHistory();
+}
+
+function closeHistory() {
+  document.getElementById('history-drawer').style.display = 'none';
+  document.getElementById('history-overlay').style.display = 'none';
+}
+
+</script>
 </head>
 <body>
 
@@ -346,6 +396,7 @@ footer{background:var(--ink);padding:4.5rem 2rem 2rem}
       <a id="nav-admin-link" href="/admin.html" style="display:none;font-size:.75rem;font-weight:700;color:var(--amber);text-decoration:none;background:var(--amber-pale);padding:.2rem .55rem;border-radius:4px" target="_blank">Admin</a>
       <span class="nav-plan-badge free" id="nav-plan-badge">free</span>
       <span class="nav-user-email" id="nav-user-email"></span>
+      <button class="nav-signout" onclick="openHistory()" style="background:var(--forest);color:#fff;border:none;border-radius:6px;padding:.3rem .75rem;font-size:.75rem;font-weight:700;cursor:pointer">History</button>
       <button class="nav-signout" onclick="signOut()">Sign out</button>
     </div>
   </div>
@@ -373,6 +424,17 @@ footer{background:var(--ink);padding:4.5rem 2rem 2rem}
     <a href="#pricing" style="background:#bf7d20;color:#fff;padding:.4rem 1rem;border-radius:6px;font-weight:700;text-decoration:none;font-size:.8rem;white-space:nowrap">Upgrade plan</a>
   </div>
 </div>
+
+<div id="history-drawer" style="display:none;position:fixed;top:0;right:0;width:420px;max-width:100vw;height:100vh;background:#111;border-left:1px solid #2a2a2a;z-index:10000;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,.5)">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #222">
+    <span style="font-size:15px;font-weight:700;color:#fff">Scan History</span>
+    <button onclick="closeHistory()" style="background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;line-height:1">✕</button>
+  </div>
+  <div id="history-list" style="flex:1;overflow-y:auto;padding:16px 20px">
+    <p style="color:#aaa;font-size:13px">Loading...</p>
+  </div>
+</div>
+<div id="history-overlay" onclick="closeHistory()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999"></div>
 
 <div class="modal-overlay hidden" id="authModal">
   <div class="modal">
@@ -1027,7 +1089,7 @@ function renderOut(el,text){
   el.innerHTML='<p>'+text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>')+'</p>';
 }
 
-async function runScan(){
+async function runScan(){ window._currentToolType = 'ats';
   const resume=document.getElementById('scan-resume').value.trim();
   if(!document.getElementById('scan-jd').value.trim()||!resume){alert('Please fill in both fields.');return}
   setLoading('scan-btn','scan-status',true,'> Run ATS Scan');
@@ -1242,7 +1304,7 @@ async function runScan(){
   }
 }
 
-async function runCurate(){
+async function runCurate(){ window._currentToolType = 'curate';
   const bullets=document.getElementById('curate-bullet').value.trim();
   if(!document.getElementById('curate-jd').value.trim()||!bullets){alert('Please fill in both fields.');return}
   setLoading('curate-btn','curate-status',true,'> Curate Bullets');
@@ -1258,7 +1320,7 @@ async function runCurate(){
   finally{setLoading('curate-btn','curate-status',false,'> Curate Bullets')}
 }
 
-async function runCover(){
+async function runCover(){ window._currentToolType = 'cover';
   const tpl=document.getElementById('cover-template').value.trim();
   if(!document.getElementById('cover-jd').value.trim()||!tpl){alert('Please fill in both fields.');return}
   setLoading('cover-btn','cover-status',true,'> Fill Cover Letter');
@@ -1596,6 +1658,7 @@ callAI = async function(sys, user) {
   var headers = {'Content-Type':'application/json'};
   if (ADMIN_TOKEN) headers['X-Admin-Token'] = ADMIN_TOKEN;
   if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  if (window._currentToolType) headers['X-Tool-Type'] = window._currentToolType;
   var res = await fetch(OR_API, {
     method: 'POST',
     headers: headers,
