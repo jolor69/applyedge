@@ -21,7 +21,7 @@ const ACARTE_CREDITS = {
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token, X-Signal-Call',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Token, X-Signal-Call, X-Tool-Type',
 };
 
 function jsonRes(data, status = 200) {
