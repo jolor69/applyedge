@@ -337,7 +337,7 @@ async function loadHistory() {
     var d = await res.json();
     if (!res.ok) { el.innerHTML = '<p style="color:#f66;font-size:13px">' + (d.error || 'Error loading history') + '</p>'; return; }
     if (!d.history || d.history.length === 0) { el.innerHTML = '<p style="color:#aaa;font-size:13px">No history yet. Run a scan to get started.</p>'; return; }
-    var toolLabels = { ats: 'ATS Scan', curate: 'Resume Curate', cover: 'Cover Letter', signal: 'The Signal' };
+    var toolLabels = { ats: 'ATS Scan', curate: 'Resume Curate', cover: 'Cover Letter', signal: 'The Signal', coldread: 'Cold Read' };
     el.innerHTML = d.history.map(function(h) {
       return '<div style="border:1px solid #333;border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer" onclick="showHistoryItem(this)" data-output="' + encodeURIComponent(h.output) + '">' +
         '<div style="display:flex;justify-content:space-between;align-items:center">' +
@@ -616,6 +616,7 @@ function closeHistory() {
       <button class="demo-tab" onclick="switchTab('curate')">② Curate Resume</button>
       <button class="demo-tab" onclick="switchTab('cover')">③ Cover Letter</button>
       <button class="demo-tab" onclick="switchTab('signal')">④ The Signal</button>
+      <button class="demo-tab" onclick="switchTab('coldread')">⑤ Cold Read</button>
     </div>
 
     <div class="demo-panel active" id="tab-scan">
@@ -718,6 +719,27 @@ Alex Chen</textarea><div class="tpl-hint"><strong>How blanks work:</strong> <cod
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="demo-panel" id="tab-coldread">
+      <div>
+        <div style="background:var(--forest-pale);border:1px solid rgba(43,84,56,.2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.8rem;color:var(--muted);line-height:1.55">
+          <strong style="color:var(--forest)">What is Cold Read?</strong> A hiring manager sees your resume for about 6 seconds before deciding whether to keep reading. This tool simulates that first, skeptical pass -- the same way a real screener would react after their 40th resume of the day. You get the unfiltered first impression, the specific gaps, and a rewrite of your weakest sections so the same reader has a reason to keep going. <strong style="color:var(--ink)">Grounded in your actual resume -- nothing invented.</strong>
+        </div>
+        <div class="demo-field"><label>Job Description <span style="font-weight:400;color:var(--muted);font-size:.7rem">— paste text, or a URL from <span style="color:var(--forest)">JobStreet, Indeed, Glassdoor, Seek</span></span></label><textarea id="coldread-jd" placeholder="Paste the job description you're applying to">Senior Software Engineer — Platform at RHB Bank
+
+We are building scalable backend infrastructure on AWS. Looking for someone with Python, Docker, Kubernetes, and a passion for clean architecture.</textarea></div>
+        <div class="demo-field"><label>Your Resume</label><textarea id="coldread-resume" style="min-height:160px" placeholder="Paste your full resume text">Software Engineer with 5 years of experience building backend systems.
+- Led Docker-based local dev standards; partnered with platform on deploy tooling.
+- Built REST APIs in Python for internal tools.
+- Worked with AWS services including EC2 and S3.</textarea></div>
+        <button class="demo-run-btn" id="coldread-btn" onclick="runColdRead()">▶ Get Cold Read</button>
+      </div>
+      <div class="demo-output">
+        <div class="demo-out-hdr"><span class="demo-out-title">Hiring Manager's First Pass</span><span id="coldread-status" style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">Waiting</span></div>
+        <div class="demo-out-body" id="coldread-output"><div class="demo-placeholder"><div class="demo-placeholder-icon">👁</div><p>See your resume the way a tired, skeptical hiring manager sees it.</p></div></div>
+      </div>
+    </div>
     </div>
 
   </div>
@@ -1021,7 +1043,7 @@ function toggleBill(){
 }
 
 function switchTab(tab){
-  const tabs=['scan','curate','cover','signal'];
+  const tabs=['scan','curate','cover','signal','coldread'];
   document.querySelectorAll('.demo-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   document.querySelectorAll('.demo-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
@@ -1344,6 +1366,47 @@ async function runCover(){ window._currentToolType = 'cover';
       +'</div>';
   }catch(e){out.innerHTML='<p style="color:#bf7d20">Error: '+e.message+'</p>'}
   finally{setLoading('cover-btn','cover-status',false,'> Fill Cover Letter')}
+}
+
+async function runColdRead(){ window._currentToolType = 'coldread';
+  const resume=document.getElementById('coldread-resume').value.trim();
+  if(!document.getElementById('coldread-jd').value.trim()||!resume){alert('Please fill in both fields.');return}
+  setLoading('coldread-btn','coldread-status',true,'> Get Cold Read');
+  const out=document.getElementById('coldread-output');
+  out.innerHTML='<div style="display:flex;justify-content:center;padding:3rem 0"><div class="spinner-dark"></div></div>';
+  try{
+    const jd=await resolveJD('coldread-jd');
+    const sys=`You are an experienced hiring manager who has reviewed 200 resumes today for this specific role. You are busy and mildly skeptical, screening quickly for reasons to pass rather than reasons to advance a candidate. Detect the language of the resume and respond in that language.
+
+Structure your response in exactly these four sections, using these headers:
+FIRST IMPRESSION: The very first thing about this resume that would make you hesitate, in one or two sentences.
+RED FLAGS: Every gap, weak point, or missing signal you notice -- specific to this resume and this role, as a short bulleted list.
+WHAT TOP CANDIDATES HAVE: What strong candidates for this exact role typically show that this resume is missing, as a short bulleted list.
+THE HONEST VERDICT: The specific, honest reason you would not call this candidate back, in two to three sentences.
+
+Then add a REWRITE section: rewrite the resume's weakest bullet points so the same hiring manager would have a clear reason to call back. Use only experience, skills, and achievements already present in the original resume -- do not invent anything new.
+
+Ground every critique in something specifically present or absent in the resume text. Be direct and specific, not needlessly harsh -- the goal is a candidate who can act on this, not one who feels attacked.`;
+    const user=`JOB DESCRIPTION:\n${jd}\n\nRESUME:\n${resume}`;
+    const r=await callAI(sys, user);
+    var safe=r.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    out.innerHTML='<div id="coldread-result" style="white-space:pre-line;font-size:.88rem;line-height:1.85;color:#18140f;margin-bottom:1.25rem">'+safe+'</div>'
+      +'<div style="border-top:1px solid #ddd8ce;padding-top:1rem;display:flex;flex-direction:column;gap:.65rem">'
+      +'<button onclick="copyColdRead()" id="copy-coldread-btn" style="width:100%;background:#2b5438;color:#fff;border:none;border-radius:7px;padding:.7rem 1rem;font-size:.875rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">Copy to clipboard</button>'
+      +'</div>';
+  }catch(e){out.innerHTML='<p style="color:#bf7d20">Error: '+e.message+'</p>'}
+  finally{setLoading('coldread-btn','coldread-status',false,'> Get Cold Read')}
+}
+
+function copyColdRead(){
+  var el=document.getElementById('coldread-result');
+  if(!el)return;
+  navigator.clipboard.writeText(el.innerText).then(function(){
+    var btn=document.getElementById('copy-coldread-btn');
+    var orig=btn.innerHTML;
+    btn.innerHTML='Copied!';
+    setTimeout(function(){btn.innerHTML=orig},1500);
+  });
 }
 
 function toggleFaq(btn){
