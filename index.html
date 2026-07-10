@@ -330,9 +330,11 @@ async function loadHistory() {
   var el = document.getElementById('history-list');
   if (!el) return;
   el.innerHTML = '<p style="color:#aaa;font-size:13px">Loading...</p>';
+  var _token = window.authToken || '';
+  var _api = window.OR_API || '';
   try {
-    var res = await fetch(OR_API + '/history', {
-      headers: { 'Authorization': 'Bearer ' + authToken }
+    var res = await fetch(_api + '/history', {
+      headers: { 'Authorization': 'Bearer ' + _token }
     });
     var d = await res.json();
     if (!res.ok) { el.innerHTML = '<p style="color:#f66;font-size:13px">' + (d.error || 'Error loading history') + '</p>'; return; }
