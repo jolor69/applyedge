@@ -1492,6 +1492,13 @@ async function runJobMatch(){
     if(d.tier==='free'){
       html+='<div style="margin-top:1rem;background:#fdf4e7;border:1px solid rgba(191,125,32,.2);border-radius:6px;padding:.6rem .85rem;font-size:.75rem;color:#6e6659;line-height:1.5;text-align:center">Upgrade to <strong style="color:#bf7d20">Seeker</strong> to also search Glints across SG, ID, MY, VN &mdash; <a href="#pricing" style="color:#2b5438;font-weight:600;text-decoration:none">See pricing &rarr;</a></div>';
     }
+    if(location==='Indonesia'){
+      html+='<div style="margin-top:1rem;background:#eef5f1;border:1px solid rgba(43,84,56,.2);border-radius:8px;padding:.85rem 1rem;font-size:.8rem;color:#2b5438;line-height:1.55;text-align:left">'
+        +'<div style="font-weight:700;margin-bottom:.3rem">🇮🇩 Siapkan bahasa Inggris kerja kamu</div>'
+        +'Interview, email profesional, dan meeting &mdash; IndoLearn melatih bahasa Inggris khusus untuk karir, bukan hafalan grammar. 2 pelajaran pertama gratis, tanpa kartu kredit.'
+        +'<div style="margin-top:.5rem"><a href="https://indolearn.neulab.xyz" target="_blank" rel="noopener" style="color:#2b5438;font-weight:700;text-decoration:none">Coba Gratis di IndoLearn &rarr;</a></div>'
+        +'</div>';
+    }
     out.innerHTML=html;
   }catch(e){out.innerHTML='<p style="color:#bf7d20">Error: '+e.message+'</p>'}
   finally{setLoading('jobmatch-btn','jobmatch-status',false,'> Search Jobs')}
