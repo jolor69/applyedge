@@ -789,7 +789,6 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       <p class="sec-sub fade-up" style="margin-bottom:1.5rem">Not standalone tools — built into the plans above.</p>
       <div class="features-grid">
         <div class="feat-card fade-up"><div class="feat-icon am">💾</div><h3>Save &amp; Email to Self</h3><p>Save outputs to your account history or email them to yourself instantly. Access your work from any device, anytime.</p></div>
-        <div class="feat-card fade-up" style="transition-delay:.07s"><div class="feat-icon">🔑</div><h3>Bring Your Own Key</h3><p>On Campaigner plan, connect your own AI API key — full control over spend and model choice.</p></div>
       </div>
     </div>
   </div>
@@ -876,11 +875,11 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       <div class="price-card fade-up" style="transition-delay:.2s">
         <div class="price-plan">Campaigner</div>
         <h3>Campaigner</h3>
-        <p class="price-desc">Serious campaign — unlimited, BYOK option.</p>
+        <p class="price-desc">Serious campaign — unlimited everything.</p>
         <div class="price-amount"><span class="mon">$39</span><span class="ann">$33</span></div>
         <p class="price-period">/month · cancel anytime</p>
         <hr class="pdiv">
-        <ul class="price-features"><li>Unlimited ATS scans</li><li>Unlimited resume curations</li><li>Unlimited cover letter fills</li><li>Unlimited Signal one-pagers</li><li>Unlimited Job Match search (Jooble + Glints)</li><li>Save to account history</li><li>Email output to yourself</li><li>Download as .txt</li><li>Priority processing</li><li>Bring your own API key</li><li>Priority support</li></ul>
+        <ul class="price-features"><li>Unlimited ATS scans</li><li>Unlimited resume curations</li><li>Unlimited cover letter fills</li><li>Unlimited Signal one-pagers</li><li>Unlimited Job Match search (Jooble + Glints)</li><li>Save to account history</li><li>Email output to yourself</li><li>Download as .txt</li><li>Priority processing</li><li>Priority support</li></ul>
         <button class="price-btn price-btn-outline" onclick="openUpgrade('campaigner')">Get Campaigner</button>
       </div>
     </div>
@@ -968,15 +967,11 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Is my resume data private?<span class="faq-icon">+</span></button>
-        <div class="faq-a">Your resume and job description are processed by AI and not stored beyond your own application history. If data sovereignty is a concern, use the Campaigner plan with your own API key — you control which AI provider handles your data.</div>
+        <div class="faq-a">Your resume and job description are processed by AI and not stored beyond your own application history.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime?<span class="faq-icon">+</span></button>
         <div class="faq-a">Yes. Cancel from Settings → Billing at any time. Your plan stays active through the end of the current paid period. No long-term contracts, no cancellation fees.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">What is the "Bring Your Own Key" option?<span class="faq-icon">+</span></button>
-        <div class="faq-a">Campaigner plan users can add their own AI API key in Settings. We encrypt it and route all AI calls through your account — full model choice, spend visibility, and data control. Ideal for power users who want to manage API costs themselves.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">Which languages does ApplyEdge support?<span class="faq-icon">+</span></button>
@@ -1852,7 +1847,7 @@ const PLAN_DETAILS = {
     title: 'Upgrade to Campaigner',
     name: 'CAMPAIGNER',
     price: '$39',
-    features: ['Unlimited ATS scans','Unlimited resume curations','Unlimited cover letter fills','Unlimited Signal one-pagers','Unlimited Job Match search (Jooble + Glints)','PDF and DOCX export included','Priority processing','Bring your own API key','Priority support']
+    features: ['Unlimited ATS scans','Unlimited resume curations','Unlimited cover letter fills','Unlimited Signal one-pagers','Unlimited Job Match search (Jooble + Glints)','PDF and DOCX export included','Priority processing','Priority support']
   }
 };
 
