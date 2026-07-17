@@ -1452,8 +1452,14 @@ async function runJobMatch(){
     var tokens=keywords.toLowerCase().split(/\s+/).filter(function(t){return t.length>2 && stopwords.indexOf(t)===-1});
     var filteredJobs=d.jobs.filter(function(j){
       var title=(j.title||'').toLowerCase();
-      return tokens.some(function(t){return title.indexOf(t)!==-1});
+      return tokens.every(function(t){return title.indexOf(t)!==-1});
     });
+    if(filteredJobs.length===0){
+      filteredJobs=d.jobs.filter(function(j){
+        var title=(j.title||'').toLowerCase();
+        return tokens.some(function(t){return title.indexOf(t)!==-1});
+      });
+    }
     if(filteredJobs.length===0) filteredJobs=d.jobs;
 
     if(!filteredJobs||filteredJobs.length===0){
