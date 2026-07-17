@@ -1448,12 +1448,20 @@ async function runJobMatch(){
       out.innerHTML='<p style="color:#bf7d20">'+(d.error&&d.error.message?d.error.message:(d.error||'Error searching jobs'))+'</p>';
       return;
     }
-    if(!d.jobs||d.jobs.length===0){
+    var stopwords=['a','an','the','and','or','of','in','at','for','with','to'];
+    var tokens=keywords.toLowerCase().split(/\s+/).filter(function(t){return t.length>2 && stopwords.indexOf(t)===-1});
+    var filteredJobs=d.jobs.filter(function(j){
+      var title=(j.title||'').toLowerCase();
+      return tokens.some(function(t){return title.indexOf(t)!==-1});
+    });
+    if(filteredJobs.length===0) filteredJobs=d.jobs;
+
+    if(!filteredJobs||filteredJobs.length===0){
       out.innerHTML='<div class="demo-placeholder"><div class="demo-placeholder-icon">🔍</div><p>No matching jobs found. Try broader keywords.</p></div>';
       return;
     }
     var html='<div style="display:flex;flex-direction:column;gap:.85rem">';
-    d.jobs.forEach(function(j){
+    filteredJobs.forEach(function(j){
       var badgeColor = j.source==='Jooble' ? 'var(--forest)' : 'var(--amber)';
       html+='<a href="'+j.link+'" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--rule);border-radius:8px;padding:.85rem 1rem;transition:border-color .15s" onmouseover="this.style.borderColor=\'var(--forest)\'" onmouseout="this.style.borderColor=\'var(--rule)\'">'
         +'<div style="display:flex;justify-content:space-between;align-items:start;gap:.5rem;margin-bottom:.3rem">'
