@@ -751,7 +751,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
         </div>
         <div class="demo-field"><label>What are you looking for?</label><textarea id="jobmatch-keywords" style="min-height:48px" placeholder="e.g. backend software engineer, Python, AWS">software engineer</textarea></div>
         <div class="demo-field"><label>Location</label>
-          <select id="jobmatch-location" style="width:100%;padding:.65rem .85rem;border:1px solid var(--rule);border-radius:7px;font-family:inherit;font-size:.85rem;background:#fff">
+          <select id="jobmatch-location" onchange="document.getElementById('indolearn-banner').style.display=(this.value==='Indonesia'?'block':'none')" style="width:100%;padding:.65rem .85rem;border:1px solid var(--rule);border-radius:7px;font-family:inherit;font-size:.85rem;background:#fff">
             <option value="Singapore">Singapore</option>
             <option value="Indonesia">Indonesia</option>
             <option value="Malaysia">Malaysia</option>
@@ -759,6 +759,11 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
           </select>
         </div>
         <button class="demo-run-btn" id="jobmatch-btn" onclick="runJobMatch()">▶ Search Jobs</button>
+        <div id="indolearn-banner" style="display:none;margin-top:1.25rem;background:#eef5f1;border:1px solid rgba(43,84,56,.2);border-radius:8px;padding:.9rem 1.1rem;font-size:.8rem;color:#2b5438;line-height:1.55">
+          <div style="font-weight:700;margin-bottom:.35rem">🇮🇩 Siapkan bahasa Inggris kerja kamu</div>
+          Interview, email profesional, dan meeting &mdash; IndoLearn melatih bahasa Inggris khusus untuk karir, bukan hafalan grammar. 2 pelajaran pertama gratis, tanpa kartu kredit.
+          <div style="margin-top:.5rem"><a href="https://indolearn.neulab.xyz" target="_blank" rel="noopener" style="color:#2b5438;font-weight:700;text-decoration:none">Coba Gratis di IndoLearn &rarr;</a></div>
+        </div>
       </div>
       <div class="demo-output">
         <div class="demo-out-hdr"><span class="demo-out-title">Matching Jobs</span><span id="jobmatch-status" style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">Waiting</span></div>
@@ -1491,13 +1496,6 @@ async function runJobMatch(){
     html+='</div>';
     if(d.tier==='free'){
       html+='<div style="margin-top:1rem;background:#fdf4e7;border:1px solid rgba(191,125,32,.2);border-radius:6px;padding:.6rem .85rem;font-size:.75rem;color:#6e6659;line-height:1.5;text-align:center">Upgrade to <strong style="color:#bf7d20">Seeker</strong> to also search Glints across SG, ID, MY, VN &mdash; <a href="#pricing" style="color:#2b5438;font-weight:600;text-decoration:none">See pricing &rarr;</a></div>';
-    }
-    if(location==='Indonesia'){
-      html+='<div style="margin-top:1rem;background:#eef5f1;border:1px solid rgba(43,84,56,.2);border-radius:8px;padding:.85rem 1rem;font-size:.8rem;color:#2b5438;line-height:1.55;text-align:left">'
-        +'<div style="font-weight:700;margin-bottom:.3rem">🇮🇩 Siapkan bahasa Inggris kerja kamu</div>'
-        +'Interview, email profesional, dan meeting &mdash; IndoLearn melatih bahasa Inggris khusus untuk karir, bukan hafalan grammar. 2 pelajaran pertama gratis, tanpa kartu kredit.'
-        +'<div style="margin-top:.5rem"><a href="https://indolearn.neulab.xyz" target="_blank" rel="noopener" style="color:#2b5438;font-weight:700;text-decoration:none">Coba Gratis di IndoLearn &rarr;</a></div>'
-        +'</div>';
     }
     out.innerHTML=html;
   }catch(e){out.innerHTML='<p style="color:#bf7d20">Error: '+e.message+'</p>'}
