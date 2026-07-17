@@ -423,6 +423,100 @@ export default {
       return jsonRes({ history: rows.results });
     }
 
+    if (url.pathname === '/job-match' && request.method === 'POST') {
+      const user = await getUserFromRequest(request, env);
+      if (!user) return jsonRes({ error: 'Not authenticated' }, 401);
+
+      const isPaid = user.plan === 'seeker' || user.plan === 'campaigner' || ADMIN_EMAILS.includes(user.email);
+
+      const limit = getPlanLimit(user.plan);
+      if (limit !== Infinity && !ADMIN_EMAILS.includes(user.email)) {
+        if (isNewPeriod(user)) {
+          const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
+          await env.DB.prepare('UPDATE users SET scans_used = 0, scans_reset_date = ? WHERE id = ?').bind(firstOfMonth, user.id).run();
+          user.scans_used = 0;
+        }
+        if (user.scans_used >= limit) {
+          if ((user.credits_scans || 0) > 0) {
+            await env.DB.prepare('UPDATE users SET credits_scans = credits_scans - 1 WHERE id = ?').bind(user.id).run();
+          } else {
+            const planMsg = user.plan === 'free'
+              ? 'Free plan limit reached (3 scans/month). Upgrade to Seeker for 10 scans/month, or buy credits.'
+              : 'Monthly scan limit reached. Upgrade to Campaigner for unlimited scans, or buy credits.';
+            return jsonRes({ error: { message: planMsg, type: 'rate_limit' } }, 429);
+          }
+        } else {
+          await env.DB.prepare('UPDATE users SET scans_used = scans_used + 1 WHERE id = ?').bind(user.id).run();
+        }
+      }
+
+      const body = await request.json();
+      const keywords = (body.keywords || '').trim();
+      const location = (body.location || 'Singapore').trim();
+      if (!keywords) return jsonRes({ error: 'Keywords required' }, 400);
+
+      const tier = isPaid ? 'paid' : 'free';
+      const cacheKey = keywords.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim() + '|' + location.toLowerCase() + '|' + tier;
+
+      const cached = await env.DB.prepare(
+        "SELECT results, created_at FROM job_match_cache WHERE query_key = ? AND created_at > datetime('now', '-1 day')"
+      ).bind(cacheKey).first();
+
+      if (cached) {
+        return jsonRes({ jobs: JSON.parse(cached.results), source: 'cache', tier });
+      }
+
+      let jobs = [];
+
+      try {
+        const joobleRes = await fetch('https://jooble.org/api/' + env.JOOBLE_API_KEY, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords, location })
+        });
+        const joobleData = await joobleRes.json();
+        if (joobleData.jobs) {
+          jobs = jobs.concat(joobleData.jobs.slice(0, 15).map(j => ({
+            title: j.title, company: j.company, location: j.location,
+            snippet: j.snippet, link: j.link, source: 'Jooble', salary: j.salary || ''
+          })));
+        }
+      } catch (e) {}
+
+      if (isPaid) {
+        try {
+          const glRes = await fetch('https://api.apify.com/v2/acts/truefetch~glints-job-listing/run-sync-get-dataset-items?token=' + env.APIFY_TOKEN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keyword: keywords, country: location, max_results: 15 })
+          });
+          const glData = await glRes.json();
+          if (Array.isArray(glData)) {
+            jobs = jobs.concat(glData.slice(0, 15).map(j => ({
+              title: j.title, company: j.company_name,
+              location: (j.location && j.location.raw) || location, snippet: j.description || '',
+              link: j.platform_url, source: 'Glints',
+              salary: j.salary_minimum ? (j.salary_currency + ' ' + j.salary_minimum + '-' + j.salary_maximum) : ''
+            })));
+          }
+        } catch (e) {}
+      }
+
+      const seen = new Set();
+      jobs = jobs.filter(j => {
+        const k = (j.title || '').toLowerCase() + '|' + (j.company || '').toLowerCase();
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+
+      await env.DB.prepare(
+        'INSERT OR REPLACE INTO job_match_cache (query_key, results, source, created_at) VALUES (?, ?, ?, datetime(\'now\'))'
+      ).bind(cacheKey, JSON.stringify(jobs), tier).run();
+
+      return jsonRes({ jobs, source: 'live', tier });
+    }
+
     if (url.pathname === '/signal-gate' && request.method === 'POST') {
       const adminToken = request.headers.get('X-Admin-Token') || '';
       const isAdmin = env.ADMIN_TOKEN && adminToken === env.ADMIN_TOKEN;

@@ -617,6 +617,7 @@ function closeHistory() {
       <button class="demo-tab" onclick="switchTab('cover')">③ Cover Letter</button>
       <button class="demo-tab" onclick="switchTab('signal')">④ The Signal</button>
       <button class="demo-tab" onclick="switchTab('coldread')">⑤ Cold Read</button>
+      <button class="demo-tab" onclick="switchTab('jobmatch')">⑥ Job Match</button>
     </div>
 
     <div class="demo-panel active" id="tab-scan">
@@ -738,6 +739,28 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       <div class="demo-output">
         <div class="demo-out-hdr"><span class="demo-out-title">Hiring Manager's First Pass</span><span id="coldread-status" style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">Waiting</span></div>
         <div class="demo-out-body" id="coldread-output"><div class="demo-placeholder"><div class="demo-placeholder-icon">👁</div><p>See your resume the way a tired, skeptical hiring manager sees it.</p></div></div>
+      </div>
+    </div>
+
+    <div class="demo-panel" id="tab-jobmatch">
+      <div>
+        <div style="background:var(--forest-pale);border:1px solid rgba(43,84,56,.2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.8rem;color:var(--muted);line-height:1.55">
+          <strong style="color:var(--forest)">What is Job Match?</strong> Search live job listings that fit your background instead of only checking the one role you already found. <strong style="color:var(--ink)">Free plan searches Jooble's listings. Seeker and Campaigner also search Glints across Singapore, Indonesia, Malaysia and Vietnam.</strong>
+        </div>
+        <div class="demo-field"><label>What are you looking for?</label><textarea id="jobmatch-keywords" style="min-height:48px" placeholder="e.g. backend software engineer, Python, AWS">software engineer</textarea></div>
+        <div class="demo-field"><label>Location</label>
+          <select id="jobmatch-location" style="width:100%;padding:.65rem .85rem;border:1px solid var(--rule);border-radius:7px;font-family:inherit;font-size:.85rem;background:#fff">
+            <option value="Singapore">Singapore</option>
+            <option value="Indonesia">Indonesia</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="Vietnam">Vietnam</option>
+          </select>
+        </div>
+        <button class="demo-run-btn" id="jobmatch-btn" onclick="runJobMatch()">▶ Search Jobs</button>
+      </div>
+      <div class="demo-output">
+        <div class="demo-out-hdr"><span class="demo-out-title">Matching Jobs</span><span id="jobmatch-status" style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">Waiting</span></div>
+        <div class="demo-out-body" id="jobmatch-output"><div class="demo-placeholder"><div class="demo-placeholder-icon">🔍</div><p>Search live listings that match your background.</p></div></div>
       </div>
     </div>
     </div>
@@ -1043,7 +1066,7 @@ function toggleBill(){
 }
 
 function switchTab(tab){
-  const tabs=['scan','curate','cover','signal','coldread'];
+  const tabs=['scan','curate','cover','signal','coldread','jobmatch'];
   document.querySelectorAll('.demo-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   document.querySelectorAll('.demo-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
@@ -1407,6 +1430,47 @@ function copyColdRead(){
     btn.innerHTML='Copied!';
     setTimeout(function(){btn.innerHTML=orig},1500);
   });
+}
+
+async function runJobMatch(){
+  const keywords=document.getElementById('jobmatch-keywords').value.trim();
+  const location=document.getElementById('jobmatch-location').value;
+  if(!keywords){alert('Please enter what you are looking for.');return}
+  setLoading('jobmatch-btn','jobmatch-status',true,'> Search Jobs');
+  const out=document.getElementById('jobmatch-output');
+  out.innerHTML='<div style="display:flex;justify-content:center;padding:3rem 0"><div class="spinner-dark"></div></div>';
+  try{
+    var headers={'Content-Type':'application/json'};
+    if(authToken) headers['Authorization']='Bearer '+authToken;
+    var res=await fetch(OR_API+'/job-match',{method:'POST',headers:headers,body:JSON.stringify({keywords:keywords,location:location})});
+    var d=await res.json();
+    if(!res.ok){
+      out.innerHTML='<p style="color:#bf7d20">'+(d.error&&d.error.message?d.error.message:(d.error||'Error searching jobs'))+'</p>';
+      return;
+    }
+    if(!d.jobs||d.jobs.length===0){
+      out.innerHTML='<div class="demo-placeholder"><div class="demo-placeholder-icon">🔍</div><p>No matching jobs found. Try broader keywords.</p></div>';
+      return;
+    }
+    var html='<div style="display:flex;flex-direction:column;gap:.85rem">';
+    d.jobs.forEach(function(j){
+      var badgeColor = j.source==='Jooble' ? 'var(--forest)' : 'var(--amber)';
+      html+='<a href="'+j.link+'" target="_blank" rel="noopener" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--rule);border-radius:8px;padding:.85rem 1rem;transition:border-color .15s" onmouseover="this.style.borderColor=\'var(--forest)\'" onmouseout="this.style.borderColor=\'var(--rule)\'">'
+        +'<div style="display:flex;justify-content:space-between;align-items:start;gap:.5rem;margin-bottom:.3rem">'
+        +'<span style="font-weight:700;font-size:.9rem;color:var(--ink)">'+j.title+'</span>'
+        +'<span style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#fff;background:'+badgeColor+';padding:.15rem .5rem;border-radius:4px;white-space:nowrap">'+j.source+'</span>'
+        +'</div>'
+        +'<div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem">'+(j.company||'')+(j.location?' • '+j.location:'')+(j.salary?' • '+j.salary:'')+'</div>'
+        +'<div style="font-size:.78rem;color:var(--muted);line-height:1.5">'+(j.snippet||'').replace(/<[^>]*>/g,'').slice(0,180)+(j.snippet&&j.snippet.length>180?'...':'')+'</div>'
+        +'</a>';
+    });
+    html+='</div>';
+    if(d.tier==='free'){
+      html+='<div style="margin-top:1rem;background:#fdf4e7;border:1px solid rgba(191,125,32,.2);border-radius:6px;padding:.6rem .85rem;font-size:.75rem;color:#6e6659;line-height:1.5;text-align:center">Upgrade to <strong style="color:#bf7d20">Seeker</strong> to also search Glints across SG, ID, MY, VN &mdash; <a href="#pricing" style="color:#2b5438;font-weight:600;text-decoration:none">See pricing &rarr;</a></div>';
+    }
+    out.innerHTML=html;
+  }catch(e){out.innerHTML='<p style="color:#bf7d20">Error: '+e.message+'</p>'}
+  finally{setLoading('jobmatch-btn','jobmatch-status',false,'> Search Jobs')}
 }
 
 function toggleFaq(btn){
