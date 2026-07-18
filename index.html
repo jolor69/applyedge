@@ -253,10 +253,14 @@ footer{background:var(--ink);padding:4.5rem 2rem 2rem}
   .nav-links{display:none}
   .nav-ham{display:flex}
   .footer-top{grid-template-columns:1fr 1fr}
-  .demo-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .demo-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative}
   .demo-tabs::-webkit-scrollbar{display:none}
   .demo-tab{flex:0 0 auto;min-width:118px}
+  .demo-tabs-wrap{position:relative}
+  .demo-tabs-wrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:28px;background:linear-gradient(to right,transparent,var(--paper));pointer-events:none;border-radius:0 10px 10px 0}
+  .swipe-hint{display:block!important}
 }
+.swipe-hint{display:none;font-size:.75rem;color:var(--muted);text-align:center;margin-bottom:1.25rem}
 @media(max-width:600px){
   .features-grid,.tips-grid{grid-template-columns:1fr}
   section{padding:4rem 1.25rem}
@@ -619,14 +623,17 @@ function closeHistory() {
       <span class="ai-badge">AI-powered · Results in seconds</span>
       <a href="/user-guide.pdf" target="_blank" rel="noopener" style="font-size:.82rem;font-weight:600;color:var(--forest);text-decoration:none">New here? Read the guide &rarr;</a>
     </div>
-    <div class="demo-tabs fade-up">
-      <button class="demo-tab active" onclick="switchTab('scan')">① ATS Score</button>
-      <button class="demo-tab" onclick="switchTab('curate')">② Curate Resume</button>
-      <button class="demo-tab" onclick="switchTab('cover')">③ Cover Letter</button>
-      <button class="demo-tab" onclick="switchTab('signal')">④ The Signal</button>
-      <button class="demo-tab" onclick="switchTab('coldread')">⑤ Cold Read</button>
-      <button class="demo-tab" onclick="switchTab('jobmatch')">⑥ Job Match</button>
+    <div class="demo-tabs-wrap fade-up">
+      <div class="demo-tabs">
+        <button class="demo-tab active" onclick="switchTab('scan')">① ATS Score</button>
+        <button class="demo-tab" onclick="switchTab('curate')">② Curate Resume</button>
+        <button class="demo-tab" onclick="switchTab('cover')">③ Cover Letter</button>
+        <button class="demo-tab" onclick="switchTab('signal')">④ The Signal</button>
+        <button class="demo-tab" onclick="switchTab('coldread')">⑤ Cold Read</button>
+        <button class="demo-tab" onclick="switchTab('jobmatch')">⑥ Job Match</button>
+      </div>
     </div>
+    <p class="swipe-hint">&larr; Swipe to see all 6 tools &rarr;</p>
 
     <div class="demo-panel active" id="tab-scan">
       <div>
