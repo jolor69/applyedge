@@ -1131,7 +1131,7 @@ async function resolveJD(fieldId){
 async function callAI(sys,user){
   var headers={'Content-Type':'application/json'};
   if(ADMIN_TOKEN) headers['X-Admin-Token']=ADMIN_TOKEN;
-  const res=await fetch(OR_API,{method:'POST',headers:headers,body:JSON.stringify({model:MODEL,max_tokens:1200,messages:[{role:'system',content:sys},{role:'user',content:user}]})});
+  const res=await fetch(OR_API,{method:'POST',headers:headers,body:JSON.stringify({model:MODEL,max_tokens:2200,messages:[{role:'system',content:sys},{role:'user',content:user}]})});
   const d=await res.json();
   if(!res.ok||d.error){
     var msg=d.error&&d.error.message?d.error.message:'API error '+res.status;
@@ -1515,7 +1515,7 @@ async function callSignalAI(sys, user) {
   var res = await fetch(OR_API, {
     method: 'POST',
     headers: headers,
-    body: JSON.stringify({model: MODEL, max_tokens: 1200, messages: [{role:'system', content:sys}, {role:'user', content:user}]})
+    body: JSON.stringify({model: MODEL, max_tokens: 2200, messages: [{role:'system', content:sys}, {role:'user', content:user}]})
   });
   var d = await res.json();
   if (!res.ok || d.error) throw new Error(d.error && d.error.message ? d.error.message : 'API error ' + res.status);
@@ -1824,7 +1824,7 @@ callAI = async function(sys, user) {
   var res = await fetch(OR_API, {
     method: 'POST',
     headers: headers,
-    body: JSON.stringify({model: MODEL, max_tokens: 1200, messages: [{role:'system', content:sys}, {role:'user', content:user}]})
+    body: JSON.stringify({model: MODEL, max_tokens: 2200, messages: [{role:'system', content:sys}, {role:'user', content:user}]})
   });
   var d = await res.json();
   if (!res.ok || d.error) {
