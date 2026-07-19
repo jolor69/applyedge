@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Guide — ApplyEdge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#18140f;--paper:#f4f0e8;--cream:#faf8f3;--forest:#2b5438;--forest-pale:#eef5f1;--amber:#bf7d20;--amber-pale:#fdf4e7;--muted:#6e6659;--rule:#ddd8ce}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Instrument Sans',sans-serif;background:var(--cream);color:var(--ink);line-height:1.7}
+.wrap{max-width:860px;margin:0 auto;padding:3rem 1.5rem 5rem}
+h1{font-family:'Playfair Display',serif;font-weight:900;font-size:2.3rem;margin-bottom:.5rem}
+.lede{color:var(--muted);font-size:1rem;margin-bottom:1.5rem;max-width:620px}
+.back{display:inline-block;margin-bottom:2rem;font-size:.85rem}
+.toc{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:1.5rem 1.75rem;margin-bottom:2.5rem}
+.toc h4{font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--forest);margin-bottom:.75rem}
+.toc a{display:block;font-size:.88rem;color:var(--ink);text-decoration:none;padding:.25rem 0;font-weight:500}
+.toc a:hover{color:var(--forest)}
+h2{font-family:'Playfair Display',serif;font-weight:900;font-size:1.6rem;margin:3rem 0 .75rem;padding-top:1rem;border-top:1px solid var(--rule)}
+h2:first-of-type{border-top:none;padding-top:0}
+h3{font-family:'Playfair Display',serif;font-weight:700;font-size:1.2rem;margin:1.5rem 0 .5rem;color:var(--ink)}
+p,li{color:var(--muted);margin-bottom:.85rem}
+ul,ol{padding-left:1.25rem}
+a{color:var(--forest);text-decoration:none;font-weight:600}
+a:hover{text-decoration:underline}
+.why-box{background:var(--forest-pale);border-left:3px solid var(--forest);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;margin:.75rem 0 1.25rem;font-size:.92rem}
+.why-box strong{color:var(--forest)}
+.tip-box{background:var(--amber-pale);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:.9rem 1.1rem;margin:.75rem 0 1.25rem;font-size:.92rem}
+.tip-box strong{color:var(--amber)}
+.step{display:flex;gap:.75rem;margin-bottom:.6rem;align-items:baseline}
+.step-num{flex-shrink:0;width:22px;height:22px;background:var(--forest);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700}
+.card{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:1.75rem;margin-bottom:1.5rem}
+table{width:100%;border-collapse:collapse;margin:1rem 0}
+th,td{text-align:left;padding:.6rem .5rem;border-bottom:1px solid var(--rule);font-size:.88rem;vertical-align:top}
+th{color:var(--ink);font-weight:700}
+td{color:var(--muted)}
+.dodont{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:1.5rem 0}
+.dodont-col{padding:1rem}
+.dodont-col.do{background:var(--forest-pale)}
+.dodont-col.dont{background:var(--amber-pale)}
+.dodont-col h5{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.6rem}
+.dodont-col.do h5{color:var(--forest)}
+.dodont-col.dont h5{color:var(--amber)}
+.dodont-col p{font-size:.85rem;margin-bottom:.6rem;color:var(--ink)}
+@media(max-width:640px){.dodont{grid-template-columns:1fr}}
+.top-btn{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--forest);color:#fff;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:1.1rem;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a class="back" href="/">&larr; Back to ApplyEdge</a>
+<h1>User Guide</h1>
+<p class="lede">A complete walkthrough of all seven tools, why each one matters, plus tips, tricks, and do's and don'ts.</p>
+
+<div class="toc">
+  <h4>On this page</h4>
+  <a href="#what">1. What is ApplyEdge?</a>
+  <a href="#why">2. Why Each Tool Matters</a>
+  <a href="#start">3. Getting Started</a>
+  <a href="#tools">4. The Seven Tools</a>
+  <a href="#pricing">5. Plans and Pricing</a>
+  <a href="#tips">6. Tips and Tricks</a>
+  <a href="#dodont">7. Do's and Don'ts</a>
+  <a href="#trouble">8. Troubleshooting</a>
+</div>
+
+<h2 id="what">1. What is ApplyEdge?</h2>
+<p>ApplyEdge is an AI-powered toolkit that helps you apply for jobs more effectively. Instead of guessing whether your resume fits a role, ApplyEdge scores your fit, rewrites weak sections, drafts your cover letter, searches for jobs that match your background, and helps recruiters actually find you on LinkedIn — all before you spend an hour tailoring an application that might not land.</p>
+<p>The seven tools are designed to be used in order, but you can jump to whichever one you need:</p>
+<ul>
+<li><strong>ATS Match Score</strong> — know your fit before you rewrite anything</li>
+<li><strong>Resume Curation</strong> — get targeted, approve-before-you-use edits</li>
+<li><strong>Cover Letter</strong> — fill in a template you wrote once, in your own voice</li>
+<li><strong>The Signal</strong> — a one-page networking narrative for events and cold outreach</li>
+<li><strong>Cold Read</strong> — see your resume the way a tired hiring manager sees it</li>
+<li><strong>Job Match</strong> — search live listings that fit your background</li>
+<li><strong>LinkedIn Profile</strong> — rewrite your headline and About section so recruiters stop scrolling</li>
+</ul>
+
+<h2 id="why">2. Why Each Tool Matters</h2>
+<p>Every job search has the same failure points. Here's which tool addresses which one, and why it's worth your time.</p>
+
+<h3>ATS Match Score</h3>
+<div class="why-box"><strong>Why it matters:</strong> Most resumes never reach a human. Applicant Tracking Systems filter out resumes that don't match the job's required keywords before a recruiter ever opens them. If you don't know your match score, you're applying blind — this tool tells you in under a minute whether a role is even worth tailoring for.</div>
+
+<h3>Resume Curation</h3>
+<div class="why-box"><strong>Why it matters:</strong> Knowing your keyword gaps isn't the same as fixing them well. It's easy to stuff keywords in awkwardly or claim experience you don't have. This tool rewrites specific bullets to close real gaps using only what's actually in your background — so your resume stays honest and still reads naturally.</div>
+
+<h3>Cover Letter</h3>
+<div class="why-box"><strong>Why it matters:</strong> A generic cover letter is worse than no cover letter — it signals you didn't bother to tailor anything. But writing a fresh one for every application doesn't scale. This tool lets you write your voice once and swap only what's company-specific.</div>
+
+<h3>The Signal</h3>
+<div class="why-box"><strong>Why it matters:</strong> Not every opportunity comes through a job posting. At a networking event, in a cold email, or in a LinkedIn DM, you need a way to introduce yourself professionally in a few sentences — something a resume and cover letter aren't built for.</div>
+
+<h3>Cold Read</h3>
+<div class="why-box"><strong>Why it matters:</strong> You can't see your own resume the way a stranger does. A hiring manager skimming their fortieth application of the day will notice things you're blind to. This tool simulates that skeptical first pass so you catch problems before a real recruiter does.</div>
+
+<h3>Job Match</h3>
+<div class="why-box"><strong>Why it matters:</strong> Job seekers often fixate on the one role they found and miss better-fitting opportunities they never searched for. This tool surfaces live listings that match your actual background.</div>
+
+<h3>LinkedIn Profile</h3>
+<div class="why-box"><strong>Why it matters:</strong> Recruiters check your LinkedIn before they call you back — often before they even open your resume. A generic headline and a vague About section get skipped in a search. This tool rewrites both to be keyword-rich and specific.</div>
+
+<h2 id="start">3. Getting Started</h2>
+<div class="step"><div class="step-num">1</div><div>Go to <a href="/">applydge.work</a> in your browser.</div></div>
+<div class="step"><div class="step-num">2</div><div>Try any tool immediately without an account — the free demo lets you test with sample data or your own.</div></div>
+<div class="step"><div class="step-num">3</div><div>Click "Sign up free" to create an account once you're ready to save your usage and track your monthly quota.</div></div>
+<div class="step"><div class="step-num">4</div><div>Verify your email using the link sent to your inbox.</div></div>
+<div class="step"><div class="step-num">5</div><div>Log in, and your plan badge (Free, Seeker, or Campaigner) appears in the top navigation.</div></div>
+<div class="tip-box"><strong>Tip:</strong> You don't need an account to try the demo, but you do need one to use any tool for real — the demo results reset and aren't saved.</div>
+
+<h2 id="tools">4. The Seven Tools</h2>
+
+<h3>4.1 ATS Match Score</h3>
+<p>Paste the job description you're applying to and your resume text, and ApplyEdge scores how well your resume matches — including a keyword gap report.</p>
+<div class="step"><div class="step-num">1</div><div>Paste the job description — or paste a URL from JobStreet, Indeed, Glassdoor, or Seek and ApplyEdge fetches the text for you.</div></div>
+<div class="step"><div class="step-num">2</div><div>Paste your resume text.</div></div>
+<div class="step"><div class="step-num">3</div><div>Click "Run ATS Scan."</div></div>
+<div class="step"><div class="step-num">4</div><div>Review your score, keyword matches, and the gap report.</div></div>
+<div class="tip-box"><strong>Tip:</strong> LinkedIn job links are not supported for fetching — copy the job description text directly instead.</div>
+
+<h3>4.2 Resume Curation</h3>
+<p>Rewrites specific bullet points to close your keyword gaps — using only experience you actually have. Every edit comes with a reason.</p>
+<div class="step"><div class="step-num">1</div><div>Paste the job description and your resume.</div></div>
+<div class="step"><div class="step-num">2</div><div>Run the curation.</div></div>
+<div class="step"><div class="step-num">3</div><div>Review each suggested edit and the reasoning behind it.</div></div>
+<div class="step"><div class="step-num">4</div><div>Copy the version you're happy with.</div></div>
+<div class="tip-box"><strong>Tip:</strong> Curation never invents new skills or experience — if a keyword isn't in your background, it won't appear in the rewrite.</div>
+
+<h3>4.3 Cover Letter</h3>
+<p>Write your template once, in your own voice. Mark only the parts that change per application using simple blanks — ApplyEdge fills only those.</p>
+<div class="step"><div class="step-num">1</div><div>Paste the job description.</div></div>
+<div class="step"><div class="step-num">2</div><div>Write your template. Use <code>_</code> for short fills and <code>[DESCRIPTION]</code> for a guided one-sentence fill.</div></div>
+<div class="step"><div class="step-num">3</div><div>Click "Fill Cover Letter."</div></div>
+<div class="step"><div class="step-num">4</div><div>Copy the result, or email it to yourself (Seeker and Campaigner).</div></div>
+<div class="tip-box"><strong>Tip:</strong> Write your template in the language you want the letter delivered in — ApplyEdge detects and matches the job description's language automatically.</div>
+
+<h3>4.4 The Signal</h3>
+<p>Not a resume or a cover letter — a one-page networking narrative for events, cold emails, or a shareable link.</p>
+<div class="step"><div class="step-num">1</div><div>Fill in your current role, top three strengths, what you're looking for, and two to three achievements with numbers if possible.</div></div>
+<div class="step"><div class="step-num">2</div><div>Click "Generate My Signal."</div></div>
+<div class="step"><div class="step-num">3</div><div>Free plan: 1 lifetime generation. Seeker: 5/month. Campaigner: drawn from the shared 200-scan pool.</div></div>
+<div class="tip-box"><strong>Tip:</strong> Lead with numbers — "cut latency 40%" reads far stronger than "improved performance."</div>
+
+<h3>4.5 Cold Read</h3>
+<p>Simulates the first, skeptical pass a real hiring manager gives your resume after reviewing dozens of others that day.</p>
+<div class="step"><div class="step-num">1</div><div>Paste the job description and your resume.</div></div>
+<div class="step"><div class="step-num">2</div><div>Click "Get Cold Read."</div></div>
+<div class="step"><div class="step-num">3</div><div>Read the First Impression, Red Flags, and Honest Verdict sections carefully.</div></div>
+<div class="step"><div class="step-num">4</div><div>Use the Rewrite section as a starting point for revision.</div></div>
+<div class="tip-box"><strong>Tip:</strong> Most useful right before you finalize an application — a final gut-check, not a first step.</div>
+
+<h3>4.6 Job Match</h3>
+<p>Searches live job listings that fit your background instead of only checking the one role you already found.</p>
+<div class="step"><div class="step-num">1</div><div>Enter what you're looking for (e.g. "backend software engineer").</div></div>
+<div class="step"><div class="step-num">2</div><div>Select a location: Singapore, Indonesia, Malaysia, or Vietnam.</div></div>
+<div class="step"><div class="step-num">3</div><div>Click "Search Jobs."</div></div>
+<div class="step"><div class="step-num">4</div><div>Click any listing to open the original posting and apply directly.</div></div>
+<div class="tip-box"><strong>Tip:</strong> Selecting Indonesia shows a note about <a href="https://indolearn.neulab.xyz" target="_blank" rel="noopener">IndoLearn</a>, a sister product for professional English prep.</div>
+
+<h3>4.7 LinkedIn Profile</h3>
+<p>Rewrites your headline and About section so they're keyword-rich and hook a reader in the first two lines, using only your real experience.</p>
+<div class="step"><div class="step-num">1</div><div>Paste your current LinkedIn headline.</div></div>
+<div class="step"><div class="step-num">2</div><div>Paste your current About / summary section.</div></div>
+<div class="step"><div class="step-num">3</div><div>Optionally add a target role or industry.</div></div>
+<div class="step"><div class="step-num">4</div><div>Click "Optimize My Profile" and copy the results into your actual LinkedIn profile.</div></div>
+<div class="tip-box"><strong>Tip:</strong> Update your LinkedIn profile shortly after running this — LinkedIn's search index takes a few days to refresh.</div>
+
+<h2 id="pricing">5. Plans and Pricing</h2>
+<div class="card">
+<table>
+<tr><th>Plan</th><th>Price</th><th>Includes</th></tr>
+<tr><td><strong>Free (Scout)</strong></td><td>$0</td><td>3 scans/month (ATS, Curate, Cover, Cold Read, LinkedIn). Job Match via Jooble. 1 lifetime Signal.</td></tr>
+<tr><td><strong>Seeker</strong></td><td>$19/mo</td><td>10 scans/month. Job Match with Glints. 5 Signals/month. Account history, email outputs.</td></tr>
+<tr><td><strong>Campaigner</strong></td><td>$39/mo</td><td>200 scans/month (incl. Signal). 40 Job Match searches/month with Glints. Priority processing.</td></tr>
+</table>
+</div>
+<p>À la carte credits are also available if you'd rather not subscribe — credits never expire.</p>
+<div class="tip-box"><strong>Note:</strong> ATS Score, Resume Curation, Cover Letter, Cold Read, and LinkedIn Profile draw from the same monthly scan quota on every plan. Job Match shares that pool on Free and Seeker, but has its own dedicated allowance on Campaigner. The Signal has its own counter on Free and Seeker, but draws from the shared pool on Campaigner.</div>
+
+<h2 id="tips">6. Tips and Tricks</h2>
+<ul>
+<li>Always run ATS Score first — it takes under a minute and tells you whether a role is even worth tailoring for.</li>
+<li>Paste the full job description, not a summary, for more accurate results.</li>
+<li>Use Cold Read right before submitting, not at the start — it's a final gut-check.</li>
+<li>Save your cover letter template once and reuse it across applications.</li>
+<li>Check your scan count before a big application push — Free and Seeker reset on the 1st of each month.</li>
+<li>Use Job Match even with a role already in mind — it often surfaces better-fitting options.</li>
+<li>Run LinkedIn Profile alongside your resume updates for a consistent story across both.</li>
+<li>On Seeker or Campaigner, save your best outputs to History to reuse without regenerating.</li>
+</ul>
+
+<h2 id="dodont">7. Do's and Don'ts</h2>
+<div class="dodont">
+<div class="dodont-col do">
+<h5>Do</h5>
+<p>✓ Review every AI output before sending it to an employer</p>
+<p>✓ Paste your real, current resume for accurate results</p>
+<p>✓ Use Cold Read's rewrite as a starting draft to personalize further</p>
+<p>✓ Cross-check Job Match listings on the original job board before applying</p>
+<p>✓ Keep your cover letter template's core sentences untouched</p>
+<p>✓ Track your scan usage if you're on Free or Seeker</p>
+<p>✓ Use The Signal for networking, not as a cover letter substitute</p>
+<p>✓ Update your actual LinkedIn profile after running LinkedIn Profile</p>
+</div>
+<div class="dodont-col dont">
+<h5>Don't</h5>
+<p>✗ Copy-paste any AI output without reading it first</p>
+<p>✗ Use a placeholder or outdated resume and expect accurate scoring</p>
+<p>✗ Submit Cold Read's rewrite word-for-word without your own voice</p>
+<p>✗ Assume every Job Match listing is current or verified by ApplyEdge</p>
+<p>✗ Let the AI rewrite parts of your letter outside the marked blanks</p>
+<p>✗ Run repeated scans on the same JD/resume pair without checking your quota</p>
+<p>✗ Send The Signal as your only application material for a job posting</p>
+<p>✗ Let the rewritten headline and About section sit unused in ApplyEdge</p>
+</div>
+</div>
+
+<h2 id="trouble">8. Troubleshooting</h2>
+<h3>"Free plan limit reached"</h3>
+<p>You've used your monthly scan quota. It resets on the 1st of each month, or upgrade to Seeker/Campaigner, or buy à la carte credits for an immediate top-up.</p>
+<h3>A job description URL won't load</h3>
+<p>LinkedIn URLs are not supported — copy the job description text directly instead. JobStreet, Indeed, Glassdoor, and Seek URLs work.</p>
+<h3>No results in Job Match</h3>
+<p>Try broader keywords. Very specific or unusual job titles may return few or no results, especially outside major cities.</p>
+<h3>I can't find my saved history</h3>
+<p>Account history is available on Seeker and Campaigner plans, and currently covers ATS Score, Resume Curation, Cover Letter, Cold Read, and LinkedIn Profile outputs. The Signal and Job Match outputs can be copied or emailed individually but don't appear in history.</p>
+<h3>Still stuck?</h3>
+<p>Contact <a href="mailto:ai.neulab.inc@gmail.com">ai.neulab.inc@gmail.com</a> for support.</p>
+
+</div>
+<a href="#" class="top-btn">&uarr;</a>
+</body>
+</html>
