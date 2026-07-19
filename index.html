@@ -344,7 +344,7 @@ async function loadHistory() {
     var d = await res.json();
     if (!res.ok) { el.innerHTML = '<p style="color:#f66;font-size:13px">' + (d.error || 'Error loading history') + '</p>'; return; }
     if (!d.history || d.history.length === 0) { el.innerHTML = '<p style="color:#aaa;font-size:13px">No history yet. Run a scan to get started.</p>'; return; }
-    var toolLabels = { ats: 'ATS Scan', curate: 'Resume Curate', cover: 'Cover Letter', signal: 'The Signal', coldread: 'Cold Read' };
+    var toolLabels = { ats: 'ATS Scan', curate: 'Resume Curate', cover: 'Cover Letter', signal: 'The Signal', coldread: 'Cold Read', linkedin: 'LinkedIn Profile' };
     el.innerHTML = d.history.map(function(h) {
       return '<div style="border:1px solid #333;border-radius:8px;padding:12px;margin-bottom:10px;cursor:pointer" onclick="showHistoryItem(this)" data-output="' + encodeURIComponent(h.output) + '">' +
         '<div style="display:flex;justify-content:space-between;align-items:center">' +
@@ -552,6 +552,7 @@ function closeHistory() {
         <span class="hero-proof-item">The Signal one-pager</span>
         <span class="hero-proof-item">Cold Read</span>
         <span class="hero-proof-item">Job Match search</span>
+        <span class="hero-proof-item">LinkedIn Profile</span>
       </div>
     </div>
     <div class="hero-visual">
@@ -631,6 +632,7 @@ function closeHistory() {
         <button class="demo-tab" onclick="switchTab('signal')">④ The Signal</button>
         <button class="demo-tab" onclick="switchTab('coldread')">⑤ Cold Read</button>
         <button class="demo-tab" onclick="switchTab('jobmatch')">⑥ Job Match</button>
+        <button class="demo-tab" onclick="switchTab('linkedin')">⑦ LinkedIn Profile</button>
       </div>
     </div>
     <p class="swipe-hint">&larr; Swipe to see all 6 tools &rarr;</p>
@@ -783,6 +785,22 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
         <div class="demo-out-body" id="jobmatch-output"><div class="demo-placeholder"><div class="demo-placeholder-icon">🔍</div><p>Search live listings that match your background.</p></div></div>
       </div>
     </div>
+
+    <div class="demo-panel" id="tab-linkedin">
+      <div>
+        <div style="background:var(--forest-pale);border:1px solid rgba(43,84,56,.2);border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.8rem;color:var(--muted);line-height:1.55">
+          <strong style="color:var(--forest)">What is LinkedIn Profile?</strong> Recruiters check your LinkedIn before they call you back. This tool rewrites your headline and About section so they're keyword-rich and hook a reader in the first two lines -- using only your real experience, nothing invented.
+        </div>
+        <div class="demo-field"><label>Your Current Headline</label><textarea id="linkedin-headline" style="min-height:48px" placeholder="e.g. Software Engineer at Acme Corp">Software Engineer at Acme Corp</textarea></div>
+        <div class="demo-field"><label>Your Current About / Summary Section</label><textarea id="linkedin-summary" style="min-height:140px" placeholder="Paste your current LinkedIn About section">Experienced software engineer with a background in backend development. I have worked on several projects involving APIs and cloud infrastructure. Looking for new opportunities.</textarea></div>
+        <div class="demo-field"><label>Target Role or Industry <span style="font-weight:400;color:var(--muted);font-size:.7rem">— optional</span></label><textarea id="linkedin-target" style="min-height:48px" placeholder="e.g. Senior Backend Engineer, fintech"></textarea></div>
+        <button class="demo-run-btn" id="linkedin-btn" onclick="runLinkedIn()">▶ Optimize My Profile</button>
+      </div>
+      <div class="demo-output">
+        <div class="demo-out-hdr"><span class="demo-out-title">Optimized Profile</span><span id="linkedin-status" style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">Waiting</span></div>
+        <div class="demo-out-body" id="linkedin-output"><div class="demo-placeholder"><div class="demo-placeholder-icon">in</div><p>Your rewritten headline and About section appear here.</p></div></div>
+      </div>
+    </div>
     </div>
 
   </div>
@@ -792,7 +810,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
   <div class="container">
     <div class="sec-label fade-up">Features</div>
     <h2 class="sec-title fade-up">Built for serious applicants</h2>
-    <p class="sec-sub fade-up">Not a chatbot. Six focused tools that respect your time and your voice.</p>
+    <p class="sec-sub fade-up">Not a chatbot. Seven focused tools that respect your time and your voice.</p>
     <div class="features-grid">
       <div class="feat-card fade-up"><div class="feat-icon">◎</div><h3>ATS Match Score</h3><p>Know your keyword gap before spending an hour rewriting. Score any role in under 60 seconds.</p></div>
       <div class="feat-card fade-up" style="transition-delay:.07s"><div class="feat-icon">✎</div><h3>Resume Curation</h3><p>Strategic edits with reasons. Each reframe shows you why — so you stay in control and learn as you go.</p></div>
@@ -800,6 +818,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       <div class="feat-card fade-up" style="transition-delay:.21s"><div class="feat-icon" style="background:var(--ink);color:#fff;font-size:.9rem;font-weight:700">SIG</div><h3>The Signal</h3><p>A one-page networking narrative — say who you are, what you do best, and what you are looking for. Share it anywhere.</p></div>
       <div class="feat-card fade-up" style="transition-delay:.28s"><div class="feat-icon">👁</div><h3>Cold Read</h3><p>See your resume the way a tired, skeptical hiring manager sees it on the 40th application of the day — then fix what actually gets you a callback.</p></div>
       <div class="feat-card fade-up" style="transition-delay:.35s"><div class="feat-icon am">🔍</div><h3>Job Match</h3><p>Search live job listings that fit your background instead of only checking the one role you already found.</p></div>
+      <div class="feat-card fade-up" style="transition-delay:.56s"><div class="feat-icon" style="background:#0a66c2;color:#fff;font-size:.85rem;font-weight:700">in</div><h3>LinkedIn Profile</h3><p>Rewrite your headline and About section so recruiters actually stop scrolling -- grounded in your real experience, nothing invented.</p></div>
     </div>
     <div style="margin-top:3rem;padding-top:2.5rem;border-top:1px solid var(--rule)">
       <div class="sec-label fade-up">Plan Perks</div>
@@ -876,7 +895,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
         <div class="price-amount"><span class="mon">$0</span><span class="ann">$0</span></div>
         <p class="price-period">forever free</p>
         <hr class="pdiv">
-        <ul class="price-features"><li>3 ATS scans/month</li><li>3 resume curations/month</li><li>3 cover letter fills/month</li><li>1 Signal one-pager (lifetime)</li><li>Job Match search (Jooble)</li><li>Copy to clipboard</li></ul>
+        <ul class="price-features"><li>3 ATS scans/month</li><li>3 resume curations/month</li><li>3 cover letter fills/month</li><li>1 Signal one-pager (lifetime)</li><li>Job Match search (Jooble)</li><li>LinkedIn Profile optimization</li><li>Copy to clipboard</li></ul>
         <a href="#demo" class="price-btn price-btn-outline">Get started free</a>
       </div>
       <div class="price-card featured fade-up" style="transition-delay:.1s">
@@ -887,7 +906,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
         <div class="price-amount"><span class="mon">$19</span><span class="ann">$16</span></div>
         <p class="price-period">/month · cancel anytime</p>
         <hr class="pdiv">
-        <ul class="price-features"><li>10 ATS scans/month</li><li>10 resume curations/month</li><li>10 cover letter fills/month</li><li>5 Signal one-pagers/month</li><li>Job Match search (Jooble + Glints)</li><li>Save to account history</li><li>Email output to yourself</li><li>Email support</li></ul>
+        <ul class="price-features"><li>10 ATS scans/month</li><li>10 resume curations/month</li><li>10 cover letter fills/month</li><li>5 Signal one-pagers/month</li><li>Job Match search (Jooble + Glints)</li><li>LinkedIn Profile optimization</li><li>Save to account history</li><li>Email output to yourself</li><li>Email support</li></ul>
         <button class="price-btn price-btn-amber" onclick="openUpgrade('seeker')">Get Seeker</button>
       </div>
       <div class="price-card fade-up" style="transition-delay:.2s">
@@ -897,7 +916,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
         <div class="price-amount"><span class="mon">$39</span><span class="ann">$33</span></div>
         <p class="price-period">/month · cancel anytime</p>
         <hr class="pdiv">
-        <ul class="price-features"><li>Unlimited ATS scans</li><li>Unlimited resume curations</li><li>Unlimited cover letter fills</li><li>Unlimited Signal one-pagers</li><li>Unlimited Job Match search (Jooble + Glints)</li><li>Save to account history</li><li>Email output to yourself</li><li>Download as .txt</li><li>Priority processing</li><li>Priority support</li></ul>
+        <ul class="price-features"><li>Unlimited ATS scans</li><li>Unlimited resume curations</li><li>Unlimited cover letter fills</li><li>Unlimited Signal one-pagers</li><li>Unlimited Job Match search (Jooble + Glints)</li><li>Unlimited LinkedIn Profile optimization</li><li>Save to account history</li><li>Email output to yourself</li><li>Download as .txt</li><li>Priority processing</li><li>Priority support</li></ul>
         <button class="price-btn price-btn-outline" onclick="openUpgrade('campaigner')">Get Campaigner</button>
       </div>
     </div>
@@ -1009,7 +1028,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">How does the scan counter reset?<span class="faq-icon">+</span></button>
-        <div class="faq-a">It depends on your plan. <strong>Free accounts</strong> get 3 scans per month — the counter resets on the 1st of each month. <strong>Seeker ($19/mo)</strong> gets 10 scans per month — resets on the 1st of each month. <strong>Campaigner ($39/mo)</strong> is unlimited — no counter. ATS Score, Resume Curation, Cover Letter, Cold Read, and Job Match all draw from the same monthly scan quota. The Signal has its own separate counter and does not use your scan quota.</div>
+        <div class="faq-a">It depends on your plan. <strong>Free accounts</strong> get 3 scans per month — the counter resets on the 1st of each month. <strong>Seeker ($19/mo)</strong> gets 10 scans per month — resets on the 1st of each month. <strong>Campaigner ($39/mo)</strong> is unlimited — no counter. ATS Score, Resume Curation, Cover Letter, Cold Read, Job Match, and LinkedIn Profile all draw from the same monthly scan quota. The Signal has its own separate counter and does not use your scan quota.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">How do I write a good cover letter template for The Signal fill?<span class="faq-icon">+</span></button>
@@ -1094,7 +1113,7 @@ function toggleBill(){
 }
 
 function switchTab(tab){
-  const tabs=['scan','curate','cover','signal','coldread','jobmatch'];
+  const tabs=['scan','curate','cover','signal','coldread','jobmatch','linkedin'];
   document.querySelectorAll('.demo-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   document.querySelectorAll('.demo-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
@@ -1454,6 +1473,51 @@ function copyColdRead(){
   if(!el)return;
   navigator.clipboard.writeText(el.innerText).then(function(){
     var btn=document.getElementById('copy-coldread-btn');
+    var orig=btn.innerHTML;
+    btn.innerHTML='Copied!';
+    setTimeout(function(){btn.innerHTML=orig},1500);
+  });
+}
+
+async function runLinkedIn(){ window._currentToolType = 'linkedin';
+  const headline=document.getElementById('linkedin-headline').value.trim();
+  const summary=document.getElementById('linkedin-summary').value.trim();
+  const target=document.getElementById('linkedin-target').value.trim();
+  if(!headline||!summary){alert('Please fill in your headline and About section.');return}
+  setLoading('linkedin-btn','linkedin-status',true,'> Optimize My Profile');
+  const out=document.getElementById('linkedin-output');
+  out.innerHTML='<div style="display:flex;justify-content:center;padding:3rem 0"><div class="spinner-dark"></div></div>';
+  try{
+    const sys=`You are a LinkedIn profile optimization expert. Detect the language of the input and respond in that language.
+
+Rewrite the person's LinkedIn headline and About section using only the real experience, roles, and achievements they provide -- do not invent new companies, titles, skills, or accomplishments.
+
+HEADLINE: keyword-rich and specific to their actual role and skills, not just a job title. Under 220 characters. Should make a recruiter want to click into the full profile.
+
+ABOUT: written in first person. Hook in the first two lines, since that's what shows before "see more". Highlight concrete achievements with numbers where the person has provided them. End with a clear, simple line about what kind of role or opportunity they're open to.
+
+Structure your response in exactly two labelled sections:
+HEADLINE:
+(the rewritten headline)
+
+ABOUT:
+(the rewritten About section)`;
+    const user=`CURRENT HEADLINE:\n${headline}\n\nCURRENT ABOUT SECTION:\n${summary}` + (target ? `\n\nTARGET ROLE / INDUSTRY:\n${target}` : '');
+    const r=await callAI(sys, user);
+    var safe=r.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    out.innerHTML='<div id="linkedin-result" style="white-space:pre-line;font-size:.88rem;line-height:1.85;color:#18140f;margin-bottom:1.25rem">'+safe+'</div>'
+      +'<div style="border-top:1px solid #ddd8ce;padding-top:1rem;display:flex;flex-direction:column;gap:.65rem">'
+      +'<button onclick="copyLinkedIn()" id="copy-linkedin-btn" style="width:100%;background:#2b5438;color:#fff;border:none;border-radius:7px;padding:.7rem 1rem;font-size:.875rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">Copy to clipboard</button>'
+      +'</div>';
+  }catch(e){out.innerHTML='<p style="color:#bf7d20">Error: '+e.message+'</p>'}
+  finally{setLoading('linkedin-btn','linkedin-status',false,'> Optimize My Profile')}
+}
+
+function copyLinkedIn(){
+  var el=document.getElementById('linkedin-result');
+  if(!el)return;
+  navigator.clipboard.writeText(el.innerText).then(function(){
+    var btn=document.getElementById('copy-linkedin-btn');
     var orig=btn.innerHTML;
     btn.innerHTML='Copied!';
     setTimeout(function(){btn.innerHTML=orig},1500);
@@ -1863,13 +1927,13 @@ const PLAN_DETAILS = {
     title: 'Upgrade to Seeker',
     name: 'SEEKER',
     price: '$19',
-    features: ['10 ATS scans per month','10 resume curations per month','10 cover letter fills per month','5 Signal one-pagers per month','Job Match search (Jooble + Glints)','PDF and DOCX export included','Email support']
+    features: ['10 ATS scans per month','10 resume curations per month','10 cover letter fills per month','5 Signal one-pagers per month','Job Match search (Jooble + Glints)','LinkedIn Profile optimization','PDF and DOCX export included','Email support']
   },
   campaigner: {
     title: 'Upgrade to Campaigner',
     name: 'CAMPAIGNER',
     price: '$39',
-    features: ['Unlimited ATS scans','Unlimited resume curations','Unlimited cover letter fills','Unlimited Signal one-pagers','Unlimited Job Match search (Jooble + Glints)','PDF and DOCX export included','Priority processing','Priority support']
+    features: ['Unlimited ATS scans','Unlimited resume curations','Unlimited cover letter fills','Unlimited Signal one-pagers','Unlimited Job Match search (Jooble + Glints)','Unlimited LinkedIn Profile optimization','PDF and DOCX export included','Priority processing','Priority support']
   }
 };
 
