@@ -4,6 +4,8 @@
 
 const MONTHLY_LIMIT_FREE = 3;
 const MONTHLY_LIMIT_SEEKER = 10;
+const MONTHLY_LIMIT_CAMPAIGNER = 200;
+const MONTHLY_LIMIT_CAMPAIGNER_JOBMATCH = 40;
 const FROM_EMAIL = 'no-reply@applydge.work';
 const APP_URL = 'https://applydge.work';
 const ADMIN_EMAILS = ['joe.lord.ai@gmail.com', 'neuralstocks.dev@gmail.com'];
@@ -137,7 +139,7 @@ async function getUserFromRequest(request, env) {
 }
 
 function getPlanLimit(plan) {
-  if (plan === 'campaigner') return Infinity;
+  if (plan === 'campaigner') return MONTHLY_LIMIT_CAMPAIGNER;
   if (plan === 'seeker') return MONTHLY_LIMIT_SEEKER;
   return MONTHLY_LIMIT_FREE;
 }
@@ -145,6 +147,11 @@ function getPlanLimit(plan) {
 function isNewPeriod(user) {
   const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
   return user.scans_reset_date < firstOfMonth;
+}
+
+function isNewJobMatchPeriod(user) {
+  const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
+  return (user.jobmatch_reset_date || '') < firstOfMonth;
 }
 
 async function getPayPalToken(env) {
@@ -429,8 +436,19 @@ export default {
 
       const isPaid = user.plan === 'seeker' || user.plan === 'campaigner' || ADMIN_EMAILS.includes(user.email);
 
-      const limit = getPlanLimit(user.plan);
-      if (limit !== Infinity && !ADMIN_EMAILS.includes(user.email)) {
+      if (!ADMIN_EMAILS.includes(user.email)) {
+        if (user.plan === 'campaigner') {
+          if (isNewJobMatchPeriod(user)) {
+            const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
+            await env.DB.prepare('UPDATE users SET jobmatch_used = 0, jobmatch_reset_date = ? WHERE id = ?').bind(firstOfMonth, user.id).run();
+            user.jobmatch_used = 0;
+          }
+          if ((user.jobmatch_used || 0) >= MONTHLY_LIMIT_CAMPAIGNER_JOBMATCH) {
+            return jsonRes({ error: { message: 'Monthly Job Match limit reached (40 searches). Resets on the 1st of next month.', type: 'rate_limit' } }, 429);
+          }
+          await env.DB.prepare('UPDATE users SET jobmatch_used = jobmatch_used + 1 WHERE id = ?').bind(user.id).run();
+        } else {
+        const limit = getPlanLimit(user.plan);
         if (isNewPeriod(user)) {
           const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
           await env.DB.prepare('UPDATE users SET scans_used = 0, scans_reset_date = ? WHERE id = ?').bind(firstOfMonth, user.id).run();
@@ -442,11 +460,12 @@ export default {
           } else {
             const planMsg = user.plan === 'free'
               ? 'Free plan limit reached (3 scans/month). Upgrade to Seeker for 10 scans/month, or buy credits.'
-              : 'Monthly scan limit reached. Upgrade to Campaigner for unlimited scans, or buy credits.';
+              : 'Monthly scan limit reached. Upgrade to Campaigner for 200 scans/month, or buy credits.';
             return jsonRes({ error: { message: planMsg, type: 'rate_limit' } }, 429);
           }
         } else {
           await env.DB.prepare('UPDATE users SET scans_used = scans_used + 1 WHERE id = ?').bind(user.id).run();
+        }
         }
       }
 
@@ -526,7 +545,17 @@ export default {
       if (user && ADMIN_EMAILS.includes(user.email)) return jsonRes({ blocked: false, reason: 'admin-email' });
 
       if (user) {
-        if (user.plan === 'campaigner') return jsonRes({ blocked: false });
+        if (user.plan === 'campaigner') {
+          if (isNewPeriod(user)) {
+            const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
+            await env.DB.prepare('UPDATE users SET scans_used = 0, scans_reset_date = ? WHERE id = ?').bind(firstOfMonth, user.id).run();
+            user.scans_used = 0;
+          }
+          if (user.scans_used >= MONTHLY_LIMIT_CAMPAIGNER) {
+            return jsonRes({ blocked: true, reason: 'Campaigner plan: 200 scans/month reached. Resets on the 1st.' });
+          }
+          return jsonRes({ blocked: false });
+        }
         if (user.plan === 'seeker') {
           const firstOfMonth = new Date().toISOString().slice(0, 7) + '-01';
           const signalCount = user.signal_count || 0;
@@ -715,7 +744,7 @@ export default {
             } else {
               const planMsg = user.plan === 'free'
                 ? 'Free plan limit reached (3 scans/month). Upgrade to Seeker for 10 scans/month, or buy credits.'
-                : 'Monthly scan limit reached. Upgrade to Campaigner for unlimited scans, or buy credits.';
+                : 'Monthly scan limit reached. You have reached your Campaigner plan limit of 200 scans this month. It resets on the 1st, or buy credits for an immediate top-up.';
               return jsonRes({ error: { message: planMsg, type: 'rate_limit' } }, 429);
             }
           }
@@ -741,6 +770,8 @@ export default {
           await env.DB.prepare('UPDATE users SET signal_used = 1 WHERE id = ?').bind(user.id).run();
         } else if (user.plan === 'seeker') {
           await env.DB.prepare('UPDATE users SET signal_count = signal_count + 1 WHERE id = ?').bind(user.id).run();
+        } else if (user.plan === 'campaigner') {
+          await env.DB.prepare('UPDATE users SET scans_used = scans_used + 1 WHERE id = ?').bind(user.id).run();
         }
       } else {
         const ip = request.headers.get('CF-Connecting-IP') || 'unknown';

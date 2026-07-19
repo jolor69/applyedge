@@ -914,11 +914,11 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       <div class="price-card fade-up" style="transition-delay:.2s">
         <div class="price-plan">Campaigner</div>
         <h3>Campaigner</h3>
-        <p class="price-desc">Serious campaign — unlimited everything.</p>
+        <p class="price-desc">Serious campaign — 200 scans a month.</p>
         <div class="price-amount"><span class="mon">$39</span><span class="ann">$33</span></div>
         <p class="price-period">/month · cancel anytime</p>
         <hr class="pdiv">
-        <ul class="price-features"><li>Unlimited ATS scans</li><li>Unlimited resume curations</li><li>Unlimited cover letter fills</li><li>Unlimited Signal one-pagers</li><li>Unlimited Job Match search (Jooble + Glints)</li><li>Unlimited LinkedIn Profile optimization</li><li>Save to account history</li><li>Email output to yourself</li><li>Download as .txt</li><li>Priority processing</li><li>Priority support</li></ul>
+        <ul class="price-features"><li>200 scans/month (ATS, Curate, Cover, Signal, Cold Read, LinkedIn)</li><li>40 Job Match searches/month (Jooble + Glints)</li><li>Save to account history</li><li>Email output to yourself</li><li>Download as .txt</li><li>Priority processing</li><li>Priority support</li></ul>
         <button class="price-btn price-btn-outline" onclick="openUpgrade('campaigner')">Get Campaigner</button>
       </div>
     </div>
@@ -1030,7 +1030,7 @@ We are building scalable backend infrastructure on AWS. Looking for someone with
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">How does the scan counter reset?<span class="faq-icon">+</span></button>
-        <div class="faq-a">It depends on your plan. <strong>Free accounts</strong> get 3 scans per month — the counter resets on the 1st of each month. <strong>Seeker ($19/mo)</strong> gets 10 scans per month — resets on the 1st of each month. <strong>Campaigner ($39/mo)</strong> is unlimited — no counter. ATS Score, Resume Curation, Cover Letter, Cold Read, Job Match, and LinkedIn Profile all draw from the same monthly scan quota. The Signal has its own separate counter and does not use your scan quota.</div>
+        <div class="faq-a">It depends on your plan. <strong>Free accounts</strong> get 3 scans per month. <strong>Seeker ($19/mo)</strong> gets 10 scans per month. <strong>Campaigner ($39/mo)</strong> gets 200 scans per month, plus a separate 40 Job Match searches per month. All plans reset on the 1st of each month. ATS Score, Resume Curation, Cover Letter, Cold Read, and LinkedIn Profile all draw from the same monthly scan quota on every plan. Job Match draws from that same pool on Free and Seeker, but has its own dedicated 40/month allowance on Campaigner. The Signal has its own separate counter on Free (1 lifetime) and Seeker (5/month) — on Campaigner, Signal draws from the same 200 scan quota as everything else.</div>
       </div>
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this)">How do I write a good cover letter template for The Signal fill?<span class="faq-icon">+</span></button>
@@ -1935,7 +1935,7 @@ const PLAN_DETAILS = {
     title: 'Upgrade to Campaigner',
     name: 'CAMPAIGNER',
     price: '$39',
-    features: ['Unlimited ATS scans','Unlimited resume curations','Unlimited cover letter fills','Unlimited Signal one-pagers','Unlimited Job Match search (Jooble + Glints)','Unlimited LinkedIn Profile optimization','PDF and DOCX export included','Priority processing','Priority support']
+    features: ['200 scans/month (ATS, Curate, Cover, Signal, Cold Read, LinkedIn)','40 Job Match searches/month (Jooble + Glints)','PDF and DOCX export included','Priority processing','Priority support']
   }
 };
 
